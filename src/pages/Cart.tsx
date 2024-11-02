@@ -1,6 +1,5 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Trash2 } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 
 const Cart = () => {
   // Mock cart data

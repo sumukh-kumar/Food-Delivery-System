@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, User, Search } from 'lucide-react';
 
@@ -10,7 +9,7 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <ShoppingBag className="h-8 w-8 text-orange-500" />
-              <span className="ml-2 text-xl font-bold text-gray-900">hungrrryryy</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">Hungry</span>
             </Link>
           </div>
 
@@ -22,7 +21,7 @@ const Navbar = () => {
                 </div>
                 <input
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-                  placeholder="Search restaurants or dishes"
+                  placeholder="Search restaurants"
                   type="search"
                 />
               </div>

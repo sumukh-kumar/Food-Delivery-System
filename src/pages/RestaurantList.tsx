@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import RestaurantCard from '../components/RestaurantCard';
 import { Restaurant } from '../types';
 
