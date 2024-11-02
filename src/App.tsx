@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import RestaurantList from './pages/RestaurantList';
-import RestaurantDetail from './pages/RestaurantDetail';
-import Cart from './pages/Cart';
+import Home from './pages/Home.tsx';
+import RestaurantList from './pages/RestaurantList.tsx';
+import RestaurantDetail from './pages/RestaurantDetail.tsx';
+import Cart from './pages/Cart.tsx';
 import Login from './pages/Login';
-import Register from './pages/Register';
+import Register from './pages/Register.tsx';
 import Footer from './components/Footer';
 
 function App() {
