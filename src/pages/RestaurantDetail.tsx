@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { Clock, Star, DollarSign } from 'lucide-react';
 import { Restaurant, MenuItem } from '../types';
+import axios from 'axios';
 
 const MOCK_RESTAURANTS: Restaurant[] = [
   {
