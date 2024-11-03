@@ -11,11 +11,11 @@ const pool = mysql.createPool({
 }).promise()
 
 async function selectall() { 
-    const [temp] = await pool.query("Select * from menu_items")
+    const [temp] = await pool.query("Select * from restaurants;")
     return temp;
 }
 
-export { selectall }
+export { selectall, pool }
 
 
 // const result = await selectall()

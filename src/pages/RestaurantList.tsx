@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import RestaurantCard from '../components/RestaurantCard';
 import { Restaurant } from '../types';
 
@@ -37,7 +38,22 @@ const MOCK_RESTAURANTS: Restaurant[] = [
 
 const RestaurantList = () => {
   const [cuisineFilter, setCuisineFilter] = useState<string>('all');
+  const [menuItems, setMenuItems] = useState([]);
   const cuisines = ['all', 'American', 'Italian', 'Japanese'];
+
+  useEffect(() => {
+    const fetchMenuItems = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/restaurants');
+        // setMenuItems(response.data);
+        console.log('Menu Items:', response.data);
+      } catch (error) {
+        console.error('Error fetching menu items:', error);
+      }
+    };
+
+    fetchMenuItems();
+  }, []);
 
   const filteredRestaurants = MOCK_RESTAURANTS.filter(
     restaurant => cuisineFilter === 'all' || restaurant.cuisine === cuisineFilter
@@ -65,6 +81,21 @@ const RestaurantList = () => {
         </div>
       </div>
 
+      {/* Display Menu Items */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Menu Items</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {menuItems.map((item: any) => (
+            <div key={item.id} className="bg-white rounded-lg shadow-md p-4">
+              <h3 className="text-lg font-semibold">{item.name}</h3>
+              <p className="text-gray-600">{item.description}</p>
+              <p className="text-orange-500 font-bold mt-2">${item.price}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <h2 className="text-2xl font-bold text-gray-900 mb-4">Restaurants</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredRestaurants.map(restaurant => (
           <RestaurantCard key={restaurant.id} restaurant={restaurant} />
