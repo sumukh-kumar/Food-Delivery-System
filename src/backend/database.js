@@ -15,11 +15,17 @@ async function registeruser(user) {
     const values = [user.name, user.email, user.phone, user.location, user.password];
    
     const [result] = await pool.query(query, values);
-    
     const [userIDResult] = await pool.query("SELECT @p_UserID AS UserID");
 
-    console.log('User registered:', result);
     return userIDResult[0].UserID; 
+}
+
+async function loginUser(email, password) {
+    const [rows] = await pool.query(
+        "SELECT UserID, User_Name, Email FROM User WHERE Email = ? AND Password = ?",
+        [email, password]
+    );
+    return rows[0];
 }
 
 async function addRestaurant(restaurantName, location, cuisine) {
@@ -29,7 +35,6 @@ async function addRestaurant(restaurantName, location, cuisine) {
     const [result] = await pool.query(query, values);
     const [restaurantIDResult] = await pool.query("SELECT @p_RestaurantID AS RestaurantID");
 
-    console.log('Restaurant added:', result);
     return restaurantIDResult[0].RestaurantID; 
 }
 
@@ -39,10 +44,7 @@ async function registerAdmin(adminData) {
     const values = [userID, restaurantID];
 
     const [result] = await pool.query(query, values);
-
-    console.log('Admin registered:', result);
     return result; 
 }
 
-
-export { registeruser, addRestaurant, registerAdmin, pool };
+export { registeruser, loginUser, addRestaurant, registerAdmin, pool };

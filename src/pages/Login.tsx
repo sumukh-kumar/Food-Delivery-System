@@ -1,18 +1,30 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 const Login = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement actual login logic
-    toast.success('Login successful!');
+    
+    try {
+      const response = await axios.post('http://localhost:8080/api/login', formData);
+      
+      if (response.status === 200) {
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        toast.success('Login successful!');
+        navigate('/'); 
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Login failed');
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
