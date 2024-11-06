@@ -6,16 +6,18 @@ CREATE PROCEDURE RegisterUser(
     IN p_Email VARCHAR(100),
     IN p_Phone VARCHAR(15),
     IN p_Address VARCHAR(250),
-    IN p_Password VARCHAR(100)
+    IN p_Password VARCHAR(100),
+    OUT p_UserID INT
 )
 BEGIN
     INSERT INTO User (User_Name, Email, Phone, Address, Password)
     VALUES (p_User_Name, p_Email, p_Phone, p_Address, p_Password);
+    
+    -- Return the UserID of the newly inserted user
+    SET p_UserID = LAST_INSERT_ID();
 END //
 DELIMITER ;
 
-
--- Admin Registration
 DELIMITER //
 CREATE PROCEDURE RegisterAdmin(
     IN p_UserID INT,
@@ -27,18 +29,22 @@ BEGIN
 END //
 DELIMITER ;
 
--- Add Restaurant
 DELIMITER //
 CREATE PROCEDURE AddRestaurant(
     IN p_Restaurant_Name VARCHAR(100),
     IN p_Location VARCHAR(200),
-    IN p_Cuisine VARCHAR(100)
+    IN p_Cuisine VARCHAR(100),
+    OUT p_RestaurantID INT
 )
 BEGIN
     INSERT INTO Restaurants (Restaurant_Name, Location, Cuisine)
     VALUES (p_Restaurant_Name, p_Location, p_Cuisine);
+    
+    -- Return the RestaurantID of the newly inserted restaurant
+    SET p_RestaurantID = LAST_INSERT_ID();
 END //
 DELIMITER ;
+
 
 -- Update Restaurant Rating
 DELIMITER //

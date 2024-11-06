@@ -1,3 +1,5 @@
+create database FoodDeliverySystem;
+
 USE FoodDeliverySystem;
 
 -- TABLE CREATION --

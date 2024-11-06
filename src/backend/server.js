@@ -25,7 +25,7 @@ app.post("/api/register", async (req, res) => {
             return res.status(400).json({ message: 'Passwords do not match' });
         }
 
-        // Adjust this to access the results properly
+        
         const [rows] = await pool.query("SELECT * FROM user WHERE email = ?", [email]);
         if (rows.length > 0) {
             return res.status(400).json({ message: 'User already exists' });
@@ -39,16 +39,18 @@ app.post("/api/register", async (req, res) => {
             password
         };
 
-        // Register the user
-        const newUser = await registeruser(user);
         
+        const newUserID = await registeruser(user);
+
         if (isAdmin) {
-            const newRestaurant = await addRestaurant(restaurantName, "Default Location", "Cuisine Type");
+            const newRestaurantID = await addRestaurant(restaurantName, "Default Location", "Cuisine Type");
+
             const adminData = {
-                userID: newUser.insertId,  // Assuming insertId is returned after inserting the user
-                restaurantID: newRestaurant.insertId,  // Assuming insertId is returned after adding the restaurant
+                userID: newUserID,  
+                restaurantID: newRestaurantID,  
             };
-            await registerAdmin(adminData);  // Register the user as an admin
+
+            await registerAdmin(adminData);
         }
 
         res.json({ message: 'User registered successfully' }); 

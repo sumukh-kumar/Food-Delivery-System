@@ -11,21 +11,26 @@ const pool = mysql.createPool({
 }).promise();
 
 async function registeruser(user) {
-    const query = "INSERT INTO User (User_Name, Email, Phone, Address, Password) VALUES (?, ?, ?, ?, ?)";
+    const query = "CALL RegisterUser(?, ?, ?, ?, ?, @p_UserID)";
     const values = [user.name, user.email, user.phone, user.location, user.password];
-
+   
     const [result] = await pool.query(query, values);
-    console.log('User inserted:', result);
-    return result; // This should return the result of the query, including insertId
+    
+    const [userIDResult] = await pool.query("SELECT @p_UserID AS UserID");
+
+    console.log('User registered:', result);
+    return userIDResult[0].UserID; 
 }
 
 async function addRestaurant(restaurantName, location, cuisine) {
-    const query = "INSERT INTO Restaurants (Restaurant_Name, Location, Cuisine) VALUES (?, ?, ?)";
+    const query = "CALL AddRestaurant(?, ?, ?, @p_RestaurantID)";
     const values = [restaurantName, location, cuisine];
 
     const [result] = await pool.query(query, values);
+    const [restaurantIDResult] = await pool.query("SELECT @p_RestaurantID AS RestaurantID");
+
     console.log('Restaurant added:', result);
-    return result; 
+    return restaurantIDResult[0].RestaurantID; 
 }
 
 async function registerAdmin(adminData) {
@@ -34,8 +39,9 @@ async function registerAdmin(adminData) {
     const values = [userID, restaurantID];
 
     const [result] = await pool.query(query, values);
+
     console.log('Admin registered:', result);
-    return result; // Assuming you want to return the result
+    return result; 
 }
 
 
