@@ -74,6 +74,22 @@ const Register = () => {
               </label>
             </div>
 
+            {formData.isAdmin && (
+              <div>
+                <label htmlFor="restaurantName" className="sr-only">Restaurant Name</label>
+                <input
+                  id="restaurantName"
+                  name="restaurantName"
+                  type="text"
+                  required
+                  value={formData.restaurantName}
+                  onChange={handleChange}
+                  className="appearance-none w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                  placeholder="Restaurant Name"
+                />
+              </div>
+            )}
+
             <div>
               <label htmlFor="name" className="sr-only">Full Name</label>
               <div className="relative">
@@ -90,22 +106,6 @@ const Register = () => {
                 />
               </div>
             </div>
-
-            {formData.isAdmin && (
-              <div>
-                <label htmlFor="restaurantName" className="sr-only">Restaurant Name</label>
-                <input
-                  id="restaurantName"
-                  name="restaurantName"
-                  type="text"
-                  required
-                  value={formData.restaurantName}
-                  onChange={handleChange}
-                  className="appearance-none w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-                  placeholder="Restaurant Name"
-                />
-              </div>
-            )}
 
             <div>
               <label htmlFor="email" className="sr-only">Email address</label>
