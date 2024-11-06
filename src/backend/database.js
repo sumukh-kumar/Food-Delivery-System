@@ -12,7 +12,7 @@ const pool = mysql.createPool({
 
 async function registeruser(user) {
     const query = "CALL RegisterUser(?, ?, ?, ?, ?, @p_UserID)";
-    const values = [user.name, user.email, user.phone, user.location, user.password];
+    const values = [user.name, user.email, user.phone, user.address, user.password];
    
     const [result] = await pool.query(query, values);
     const [userIDResult] = await pool.query("SELECT @p_UserID AS UserID");

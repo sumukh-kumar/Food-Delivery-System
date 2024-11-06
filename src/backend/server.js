@@ -58,7 +58,7 @@ app.post("/api/login", async (req, res) => {
 
 app.post("/api/register", async (req, res) => { 
     try {
-        const { name, email, phone, password, confirmPassword, isAdmin, restaurantName } = req.body;
+        const { name, email, phone, password, confirmPassword, isAdmin, restaurantName , address } = req.body;
 
         if (!name || !email || !phone || !password || !confirmPassword) {
             return res.status(400).json({ message: 'Missing required fields' });
@@ -77,14 +77,14 @@ app.post("/api/register", async (req, res) => {
             name,
             email,
             phone,
-            location: "btm",
+            address,
             password
         };
 
         const newUserID = await registeruser(user);
 
         if (isAdmin) {
-            const newRestaurantID = await addRestaurant(restaurantName, "Default Location", "Cuisine Type");
+            const newRestaurantID = await addRestaurant(restaurantName, address, "Cuisine Type");
 
             const adminData = {
                 userID: newUserID,  
