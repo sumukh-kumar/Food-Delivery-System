@@ -25,17 +25,73 @@ app.post("/api/login", async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
+        // Check if user is admin
+        const [adminRows] = await pool.query(
+            "SELECT a.*, r.* FROM Admin a JOIN Restaurants r ON a.RestaurantID = r.RestaurantID WHERE a.UserID = ?",
+            [user.UserID]
+        );
+
+        const isAdmin = adminRows.length > 0;
+        const adminData = isAdmin ? adminRows[0] : null;
+
         res.json({ 
             message: 'Login successful',
             user: {
                 id: user.UserID,
                 name: user.User_Name,
-                email: user.Email
+                email: user.Email,
+                isAdmin,
+                restaurant: isAdmin ? {
+                    id: adminData.RestaurantID,
+                    name: adminData.Restaurant_Name,
+                    location: adminData.Location,
+                    cuisine: adminData.Cuisine,
+                    rating: adminData.Rating
+                } : null
             }
         });
     } catch (error) {
         console.error('Error during login:', error);
         res.status(500).json({ error: 'Failed to login', details: error.message });
+    }
+});
+
+app.get("/api/admin/analytics/:restaurantId", async (req, res) => {
+    try {
+        const { restaurantId } = req.params;
+
+        // Get total orders
+        const [orderCount] = await pool.query(
+            "SELECT COUNT(*) as total FROM Orders WHERE RestaurantID = ?",
+            [restaurantId]
+        );
+
+        // Get total revenue
+        const [revenue] = await pool.query(
+            "SELECT SUM(Total_Amount) as total FROM Orders WHERE RestaurantID = ?",
+            [restaurantId]
+        );
+
+        // Get popular items
+        const [popularItems] = await pool.query(`
+            SELECT mi.Name, COUNT(*) as orderCount
+            FROM Order_Item oi
+            JOIN Menu_Item mi ON oi.Menu_Item_ID = mi.Menu_Item_ID
+            JOIN Orders o ON oi.OrderID = o.OrderID
+            WHERE o.RestaurantID = ?
+            GROUP BY mi.Menu_Item_ID
+            ORDER BY orderCount DESC
+            LIMIT 5
+        `, [restaurantId]);
+
+        res.json({
+            totalOrders: orderCount[0].total,
+            totalRevenue: revenue[0].total || 0,
+            popularItems
+        });
+    } catch (error) {
+        console.error('Error fetching analytics:', error);
+        res.status(500).json({ error: 'Failed to fetch analytics' });
     }
 });
 

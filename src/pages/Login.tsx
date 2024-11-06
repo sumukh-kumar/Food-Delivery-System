@@ -4,7 +4,11 @@ import { Mail, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
-const Login = () => {
+interface LoginProps {
+  setUser: (user: any) => void;
+}
+
+const Login = ({ setUser }: LoginProps) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -18,9 +22,17 @@ const Login = () => {
       const response = await axios.post('http://localhost:8080/api/login', formData);
       
       if (response.status === 200) {
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+        const userData = response.data.user;
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
         toast.success('Login successful!');
-        navigate('/'); 
+        
+        // Redirect based on user role
+        if (userData.isAdmin) {
+          navigate('/admin', { replace: true });
+        } else {
+          navigate('/', { replace: true });
+        }
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Login failed');
@@ -94,7 +106,7 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          {/* <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input
                 id="remember-me"
@@ -105,14 +117,14 @@ const Login = () => {
               <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
                 Remember me
               </label>
-            </div>
+            </div> */}
 
-            <div className="text-sm">
+            {/* <div className="text-sm">
               <a href="#" className="font-medium text-orange-500 hover:text-orange-400">
                 Forgot your password?
               </a>
             </div>
-          </div>
+          </div> */}
 
           <div>
             <button
