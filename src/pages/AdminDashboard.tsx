@@ -2,26 +2,49 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BarChart3, Users, DollarSign, TrendingUp } from 'lucide-react';
 
+interface Analytics {
+  totalOrders: number;
+  totalRevenue: number;
+  popularItems: Array<{
+    Name: string;
+    orderCount: number;
+  }>;
+}
+
+interface Restaurant {
+  id: string;
+  name: string;
+  location: string;
+  cuisine: string;
+  rating: number;
+}
+
 const AdminDashboard = () => {
-  const [analytics, setAnalytics] = useState({
+  const [analytics, setAnalytics] = useState<Analytics>({
     totalOrders: 0,
     totalRevenue: 0,
     popularItems: []
   });
-  const [restaurant, setRestaurant] = useState(null);
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('user'));
+    const userData = JSON.parse(localStorage.getItem('user') || '{}');
     if (userData?.restaurant) {
       setRestaurant(userData.restaurant);
       fetchAnalytics(userData.restaurant.id);
     }
   }, []);
 
-  const fetchAnalytics = async (restaurantId) => {
+  const fetchAnalytics = async (restaurantId: string) => {
     try {
       const response = await axios.get(`http://localhost:8080/api/admin/analytics/${restaurantId}`);
-      setAnalytics(response.data);
+      const data = response.data;
+      
+      setAnalytics({
+        totalOrders: Number(data.totalOrders) || 0,
+        totalRevenue: Number(data.totalRevenue) || 0,
+        popularItems: data.popularItems || []
+      });
     } catch (error) {
       console.error('Error fetching analytics:', error);
     }
@@ -30,6 +53,10 @@ const AdminDashboard = () => {
   if (!restaurant) {
     return <div>Loading...</div>;
   }
+
+  const averageOrderValue = analytics.totalOrders > 0 
+    ? (analytics.totalRevenue / analytics.totalOrders) 
+    : 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -70,7 +97,7 @@ const AdminDashboard = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Revenue</p>
               <p className="text-2xl font-semibold text-gray-900">
-                ${analytics.totalRevenue?.toFixed(2) || '0.00'}
+                ${analytics.totalRevenue.toFixed(2)}
               </p>
             </div>
           </div>
@@ -82,7 +109,7 @@ const AdminDashboard = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Average Order Value</p>
               <p className="text-2xl font-semibold text-gray-900">
-                ${analytics.totalOrders ? (analytics.totalRevenue / analytics.totalOrders).toFixed(2) : '0.00'}
+                ${averageOrderValue.toFixed(2)}
               </p>
             </div>
           </div>
