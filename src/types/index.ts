@@ -1,12 +1,12 @@
-export interface Restaurant {
-  id: string;
-  name: string;
-  image: string;
-  cuisine: string;
-  rating: number;
-  deliveryTime: string;
-  minimumOrder: number;
-  description: string;
+// types.ts
+
+export interface Restaurantt {
+  RestaurantID: number;
+  Restaurant_Name: string;
+  Location: string;
+  Cuisine: string;
+  Image_URL: string;
+  Rating: number | null;
 }
 
 export interface MenuItem {

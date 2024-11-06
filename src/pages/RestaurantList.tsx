@@ -1,74 +1,44 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import RestaurantCard from '../components/RestaurantCard';
-import { Restaurant } from '../types';
 
-const MOCK_RESTAURANTS: Restaurant[] = [
-  {
-    id: '1',
-    name: 'Burger Palace',
-    image: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?auto=format&fit=crop&q=80',
-    cuisine: 'American',
-    rating: 4.5,
-    deliveryTime: '25-35 min',
-    minimumOrder: 15,
-    description: 'Best burgers in town'
-  },
-  {
-    id: '2',
-    name: 'Pizza Heaven',
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80',
-    cuisine: 'Italian',
-    rating: 4.7,
-    deliveryTime: '30-40 min',
-    minimumOrder: 20,
-    description: 'Authentic Italian pizzas'
-  },
-  {
-    id: '3',
-    name: 'Sushi Master',
-    image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80',
-    cuisine: 'Japanese',
-    rating: 4.8,
-    deliveryTime: '35-45 min',
-    minimumOrder: 25,
-    description: 'Fresh sushi and sashimi'
-  }
-];
+interface Restaurant {
+  RestaurantID: number;
+  Restaurant_Name: string;
+  Location: string;
+  Cuisine: string;
+  Image_URL: string;
+  Rating: number | null;
+}
 
-const RestaurantList = () => {
+const RestaurantList: React.FC = () => {
   const [cuisineFilter, setCuisineFilter] = useState<string>('all');
-  const [menuItems, setMenuItems] = useState([]);
-  const cuisines = ['all', 'American', 'Italian', 'Japanese'];
-
-  const bruh = {
-    name: "rish1254u128i2",
-    email: "ris2asiu12343fhafuhi2@yahoo.com",
-    phone: 7892438503,
-    location: "btm",
-    password: "pas"
-  };
-
-  let hasFetched = false;
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [cuisines, setCuisines] = useState<string[]>(['all']);
 
   useEffect(() => {
-    if (hasFetched) return;
-    hasFetched = true;
-    const fetchMenuItems = async () => {
+    const fetchRestaurants = async () => {
       try {
-        // const response = await axios.post('http://localhost:8080/api/restaurants',bruh);
-        // setMenuItems(response.data);
-        // console.log('Menu Items:', response.data);
+        const response = await axios.get<Restaurant[]>('http://localhost:8080/api/restaurants');
+        const fetchedRestaurants = response.data.map(restaurant => ({
+          ...restaurant,
+          Rating: typeof restaurant.Rating === 'number' ? restaurant.Rating : null
+        }));
+        setRestaurants(fetchedRestaurants);
+        
+        const uniqueCuisines = ['all', ...new Set(fetchedRestaurants.map(r => r.Cuisine).filter(Boolean))];
+        setCuisines(uniqueCuisines);
+        console.log(fetchedRestaurants);
       } catch (error) {
-        // console.error('Error fetching menu items:', error);
+        console.error('Error fetching restaurants:', error);
       }
     };
 
-    fetchMenuItems();
+    fetchRestaurants();
   }, []);
 
-  const filteredRestaurants = MOCK_RESTAURANTS.filter(
-    restaurant => cuisineFilter === 'all' || restaurant.cuisine === cuisineFilter
+  const filteredRestaurants = restaurants.filter(
+    restaurant => cuisineFilter === 'all' || restaurant.Cuisine === cuisineFilter
   );
 
   return (
@@ -93,24 +63,9 @@ const RestaurantList = () => {
         </div>
       </div>
 
-      {/* Display Menu Items */}
-      {/* <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Menu Items</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {menuItems.map((item: any) => (
-            <div key={item.id} className="bg-white rounded-lg shadow-md p-4">
-              <h3 className="text-lg font-semibold">{item.name}</h3>
-              <p className="text-gray-600">{item.description}</p>
-              <p className="text-orange-500 font-bold mt-2">${item.price}</p>
-            </div>
-          ))}
-        </div>
-      </div> */}
-
-      {/* <h2 className="text-2xl font-bold text-gray-900 mb-4">Restaurants</h2> */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredRestaurants.map(restaurant => (
-          <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+          <RestaurantCard key={restaurant.RestaurantID} restaurant={restaurant} />
         ))}
       </div>
     </div>

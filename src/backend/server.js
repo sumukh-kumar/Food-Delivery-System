@@ -140,6 +140,16 @@ app.get("/api/admin/analytics/:restaurantId", async (req, res) => {
     }
 });
 
+app.get("/api/restaurants", async (req, res) => {
+    try {
+        const [restaurants] = await pool.query("select * from restaurants");
+        res.json(restaurants);
+    } catch (error) {
+        console.error('Error fetching restaurants:', error);
+        res.status(500).json({ error: 'Failed to fetch restaurants', details: error.message });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
