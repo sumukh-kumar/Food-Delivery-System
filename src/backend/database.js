@@ -10,13 +10,12 @@ const pool = mysql.createPool({
     database: process.env.MYSQL_DATABASE
 }).promise()
 
-async function selectall() { 
-    const [temp] = await pool.query("Select * from restaurants;")
+async function registeruser(user) { 
+    const query = "CALL registeruser(?, ?, ?, ?, ?)";
+    const values = [user.name, user.email, user.phone, user.location, user.password];
+    const [temp] = await pool.query(query, values);
     return temp;
 }
 
-export { selectall, pool }
+export { registeruser, pool }
 
-
-// const result = await selectall()
-// console.log(result)

@@ -41,14 +41,26 @@ const RestaurantList = () => {
   const [menuItems, setMenuItems] = useState([]);
   const cuisines = ['all', 'American', 'Italian', 'Japanese'];
 
+  const bruh = {
+    name: "rish1254u128i2",
+    email: "ris2asiu12343fhafuhi2@yahoo.com",
+    phone: 7892438503,
+    location: "btm",
+    password: "pas"
+  };
+
+  let hasFetched = false;
+
   useEffect(() => {
+    if (hasFetched) return;
+    hasFetched = true;
     const fetchMenuItems = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/restaurants');
+        // const response = await axios.post('http://localhost:8080/api/restaurants',bruh);
         // setMenuItems(response.data);
-        console.log('Menu Items:', response.data);
+        // console.log('Menu Items:', response.data);
       } catch (error) {
-        console.error('Error fetching menu items:', error);
+        // console.error('Error fetching menu items:', error);
       }
     };
 
@@ -82,7 +94,7 @@ const RestaurantList = () => {
       </div>
 
       {/* Display Menu Items */}
-      <div className="mb-8">
+      {/* <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Menu Items</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {menuItems.map((item: any) => (
@@ -93,9 +105,9 @@ const RestaurantList = () => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">Restaurants</h2>
+      {/* <h2 className="text-2xl font-bold text-gray-900 mb-4">Restaurants</h2> */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredRestaurants.map(restaurant => (
           <RestaurantCard key={restaurant.id} restaurant={restaurant} />
