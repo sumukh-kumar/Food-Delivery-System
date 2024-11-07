@@ -58,7 +58,7 @@ app.post("/api/login", async (req, res) => {
 
 app.post("/api/register", async (req, res) => { 
     try {
-        const { name, email, phone, password, confirmPassword, isAdmin, restaurantName , address } = req.body;
+        const { name, email, phone, password, confirmPassword, isAdmin, restaurantName, address } = req.body;
 
         if (!name || !email || !phone || !password || !confirmPassword) {
             return res.status(400).json({ message: 'Missing required fields' });
@@ -85,19 +85,158 @@ app.post("/api/register", async (req, res) => {
 
         if (isAdmin) {
             const newRestaurantID = await addRestaurant(restaurantName, address, "Cuisine Type");
-
-            const adminData = {
-                userID: newUserID,  
-                restaurantID: newRestaurantID,  
-            };
-
-            await registerAdmin(adminData);
+            await registerAdmin({ userID: newUserID, restaurantID: newRestaurantID });
         }
 
         res.json({ message: 'User registered successfully' }); 
     } catch (error) {
         console.error('Error during registration:', error);
         res.status(500).json({ error: 'Failed to register user', details: error.message });
+    }
+});
+
+app.get("/api/restaurants", async (req, res) => {
+    try {
+        const [restaurants] = await pool.query("SELECT * FROM Restaurants");    
+        res.json(restaurants);
+    } catch (error) {
+        console.error('Error fetching restaurants:', error);
+        res.status(500).json({ error: 'Failed to fetch restaurants', details: error.message });
+    }
+});
+
+app.get("/api/restaurants/:id", async (req, res) => {
+    try {
+        const [restaurants] = await pool.query(
+            "SELECT * FROM Restaurants WHERE RestaurantID = ?",
+            [req.params.id]
+        );
+        
+        if (restaurants.length === 0) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+        
+        res.json(restaurants[0]);
+    } catch (error) {
+        console.error('Error fetching restaurant:', error);
+        res.status(500).json({ error: 'Failed to fetch restaurant' });
+    }
+});
+
+app.get("/api/restaurants/:id/menu", async (req, res) => {
+    try {
+        const [menuItems] = await pool.query(
+            "SELECT * FROM Menu_Item WHERE RestaurantID = ?",
+            [req.params.id]
+        );
+        res.json(menuItems);
+    } catch (error) {
+        console.error('Error fetching menu items:', error);
+        res.status(500).json({ error: 'Failed to fetch menu items' });
+    }
+});
+
+app.post("/api/orders", async (req, res) => {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        await connection.beginTransaction();
+
+        const { userId, restaurantId, items, deliveryType, totalAmount } = req.body;
+
+        // Validate input
+        if (!userId || !restaurantId || !items || !items.length || !totalAmount) {
+            throw new Error('Missing required fields');
+        }
+
+        // Insert into Orders table
+        const [orderResult] = await connection.query(
+            `INSERT INTO Orders (UserID, RestaurantID, Status, Total_Amount, Delivery_Pickup) 
+             VALUES (?, ?, 'Pending', ?, ?)`,
+            [userId, restaurantId, totalAmount, deliveryType]
+        );
+
+        const orderId = orderResult.insertId;
+
+        // Insert order items
+        for (const item of items) {
+            await connection.query(
+                `INSERT INTO Order_Item (OrderID, Menu_Item_ID, Quantity) 
+                 VALUES (?, ?, ?)`,
+                [orderId, item.menuItemId, item.quantity]
+            );
+        }
+
+        await connection.commit();
+        res.json({ 
+            success: true,
+            message: 'Order placed successfully', 
+            orderId 
+        });
+
+    } catch (error) {
+        if (connection) {
+            await connection.rollback();
+        }
+        console.error('Error placing order:', error);
+        res.status(500).json({ 
+            success: false,
+            error: 'Failed to place order', 
+            details: error.message 
+        });
+    } finally {
+        if (connection) {
+            connection.release();
+        }
+    }
+});
+
+app.post("/api/payments", async (req, res) => {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        await connection.beginTransaction();
+
+        const { userId, orderId, amount, method } = req.body;
+
+        // Validate input
+        if (!userId || !orderId || !amount || !method) {
+            throw new Error('Missing required fields');
+        }
+
+        // Insert into Payment table
+        await connection.query(
+            `INSERT INTO Payment (UserID, OrderID, Amount, Method, Payment_Status) 
+             VALUES (?, ?, ?, ?, 'Completed')`,
+            [userId, orderId, amount, method]
+        );
+
+        // Update order status
+        await connection.query(
+            `UPDATE Orders SET Status = 'Processing' WHERE OrderID = ?`,
+            [orderId]
+        );
+
+        await connection.commit();
+        res.json({ 
+            success: true,
+            message: 'Payment processed successfully' 
+        });
+
+    } catch (error) {
+        if (connection) {
+            await connection.rollback();
+        }
+        console.error('Error processing payment:', error);
+        res.status(500).json({ 
+            success: false,
+            error: 'Failed to process payment', 
+            details: error.message 
+        });
+    } finally {
+        if (connection) {
+            connection.release();
+        }
     }
 });
 
@@ -140,82 +279,6 @@ app.get("/api/admin/analytics/:restaurantId", async (req, res) => {
     }
 });
 
-app.get("/api/restaurants", async (req, res) => {
-    try {
-        const [restaurants] = await pool.query("select * from restaurants");    
-        res.json(restaurants);
-    } catch (error) {
-        console.error('Error fetching restaurants:', error);
-        res.status(500).json({ error: 'Failed to fetch restaurants', details: error.message });
-    }
-});
-
-app.get("/api/restaurants/:id", async (req, res) => {
-    try {
-        const [restaurants] = await pool.query(
-            "SELECT * FROM Restaurants WHERE RestaurantID = ?",
-            [req.params.id]
-        );
-        
-        if (restaurants.length === 0) {
-            return res.status(404).json({ message: 'Restaurant not found' });
-        }
-        
-        res.json(restaurants[0]);
-    } catch (error) {
-        console.error('Error fetching restaurant:', error);
-        res.status(500).json({ error: 'Failed to fetch restaurant' });
-    }
-});
-
-app.get("/api/restaurants/:id/menu", async (req, res) => {
-    try {
-        const [menuItems] = await pool.query(
-            "SELECT * FROM Menu_Item WHERE RestaurantID = ?",
-            [req.params.id]
-        );
-        res.json(menuItems);
-    } catch (error) {
-        console.error('Error fetching menu items:', error);
-        res.status(500).json({ error: 'Failed to fetch menu items' });
-    }
-});
-
-app.post("/api/orders", async (req, res) => {
-    const connection = await pool.getConnection();
-    
-    try {
-      await connection.beginTransaction();
-  
-      const { userId, restaurantId, items, deliveryType, totalAmount } = req.body;
-  
-      // Insert into Orders table
-      const [orderResult] = await connection.query(
-        "INSERT INTO Orders (UserID, RestaurantID, Status, Total_Amount, Delivery_Pickup) VALUES (?, ?, 'Pending', ?, ?)",
-        [userId, restaurantId, totalAmount, deliveryType]
-      );
-  
-      const orderId = orderResult.insertId;
-  
-      // Insert order items
-      for (const item of items) {
-        await connection.query(
-          "INSERT INTO Order_Item (OrderID, Menu_Item_ID, Quantity) VALUES (?, ?, ?)",
-          [orderId, item.menuItemId, item.quantity]
-        );
-      }
-  
-      await connection.commit();
-      res.json({ message: 'Order placed successfully', orderId });
-    } catch (error) {
-      await connection.rollback();
-      console.error('Error placing order:', error);
-      res.status(500).json({ error: 'Failed to place order' });
-    } finally {
-      connection.release();
-    }
-  });
-  
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

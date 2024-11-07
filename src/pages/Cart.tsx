@@ -51,9 +51,12 @@ const Cart = () => {
       const response = await axios.post('http://localhost:8080/api/orders', orderData);
       
       if (response.status === 200) {
-        dispatch({ type: 'CLEAR_CART' });
-        toast.success('Order placed successfully!');
-        navigate('/');
+        navigate('/payment', { 
+          state: { 
+            orderId: response.data.orderId,
+            amount: totalAmount
+          }
+        });
       }
     } catch (error) {
       toast.error('Failed to place order. Please try again.');

@@ -5,6 +5,8 @@ import Home from './pages/Home.tsx';
 import RestaurantList from './pages/RestaurantList.tsx';
 import RestaurantDetail from './pages/RestaurantDetail.tsx';
 import Cart from './pages/Cart.tsx';
+import Payment from './pages/Payment.tsx';
+import PaymentSuccess from './pages/PaymentSuccess.tsx';
 import Login from './pages/Login';
 import Register from './pages/Register.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
@@ -62,6 +64,8 @@ function App() {
               <Route path="/restaurants" element={<PublicRoute><RestaurantList /></PublicRoute>} />
               <Route path="/restaurant/:id" element={<PublicRoute><RestaurantDetail /></PublicRoute>} />
               <Route path="/cart" element={<PublicRoute><Cart /></PublicRoute>} />
+              <Route path="/payment" element={<PublicRoute><Payment /></PublicRoute>} />
+              <Route path="/payment-success" element={<PublicRoute><PaymentSuccess /></PublicRoute>} />
               <Route path="/login" element={<Login setUser={setUser} />} />
               <Route path="/register" element={<Register />} />
               <Route 
