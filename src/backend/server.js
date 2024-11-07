@@ -279,6 +279,78 @@ app.get("/api/admin/analytics/:restaurantId", async (req, res) => {
     }
 });
 
+app.put("/api/admin/restaurant/:id", async (req, res) => {
+    try {
+        const { name, location, cuisine, image_url } = req.body;
+        const restaurantId = req.params.id;
+
+        await pool.query(
+            "UPDATE Restaurants SET Restaurant_Name = ?, Location = ?, Cuisine = ?, Image_URL = ? WHERE RestaurantID = ?",
+            [name, location, cuisine, image_url, restaurantId]
+        );
+
+        res.json({ message: 'Restaurant updated successfully' });
+    } catch (error) {
+        console.error('Error updating restaurant:', error);
+        res.status(500).json({ error: 'Failed to update restaurant' });
+    }
+});
+
+app.post("/api/admin/restaurant/:id/menu", async (req, res) => {
+    try {
+        const { name, description, price, category, veg_nonveg, image_url, in_stock } = req.body;
+        const restaurantId = req.params.id;
+
+        const [result] = await pool.query(
+            "INSERT INTO Menu_Item (RestaurantID, Name, Description, Price, Category, Veg_NonVeg, Image_URL, In_Stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [restaurantId, name, description, price, category, veg_nonveg, image_url, in_stock ?? true]
+        );
+
+        if (result.affectedRows === 1) {
+            res.json({ 
+                message: 'Menu item added successfully',
+                menuItemId: result.insertId 
+            });
+        } else {
+            throw new Error('Failed to insert menu item');
+        }
+    } catch (error) {
+        console.error('Error adding menu item:', error);
+        res.status(500).json({ 
+            error: 'Failed to add menu item',
+            details: error.message 
+        });
+    }
+});
+
+app.put("/api/admin/menu-item/:id", async (req, res) => {
+    try {
+        const { name, description, price, category, veg_nonveg, image_url, in_stock } = req.body;
+        const menuItemId = req.params.id;
+
+        await pool.query(
+            "UPDATE Menu_Item SET Name = ?, Description = ?, Price = ?, Category = ?, Veg_NonVeg = ?, Image_URL = ?, In_Stock = ? WHERE Menu_Item_ID = ?",
+            [name, description, price, category, veg_nonveg, image_url, in_stock, menuItemId]
+        );
+
+        res.json({ message: 'Menu item updated successfully' });
+    } catch (error) {
+        console.error('Error updating menu item:', error);
+        res.status(500).json({ error: 'Failed to update menu item' });
+    }
+});
+
+app.delete("/api/admin/menu-item/:id", async (req, res) => {
+    try {
+        const menuItemId = req.params.id;
+        await pool.query("DELETE FROM Menu_Item WHERE Menu_Item_ID = ?", [menuItemId]);
+        res.json({ message: 'Menu item deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting menu item:', error);
+        res.status(500).json({ error: 'Failed to delete menu item' });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
