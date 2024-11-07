@@ -30,6 +30,7 @@ const RestaurantDetail = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isVegOnly, setIsVegOnly] = useState<boolean>(false); 
 
   useEffect(() => {
     const fetchRestaurantAndMenu = async () => {
@@ -67,8 +68,9 @@ const RestaurantDetail = () => {
       item.Name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.Description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.Category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesVegOnly = !isVegOnly || item.Veg_NonVeg === 'Veg';
     
-    return matchesCategory && matchesSearch;
+    return matchesCategory && matchesSearch && matchesVegOnly;
   });
 
   const rating = typeof restaurant.Rating === 'string' 
@@ -99,14 +101,8 @@ const RestaurantDetail = () => {
               </span>
             </div>
             <div className="flex items-center">
-              {/* <Clock className="h-5 w-5 text-gray-600" />
-              <span className="ml-1 text-gray-700">30-45 min</span> */}
-            </div>
-            <div className="flex items-center">
-            <div className="flex items-center">
               <MapPin className="h-5 w-5 text-gray-600" />
               <span className="ml-1 text-gray-700">{restaurant.Location}</span>
-            </div>
             </div>
           </div>
         </div>
@@ -126,6 +122,15 @@ const RestaurantDetail = () => {
                   placeholder="Search menu items..."
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                 />
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={isVegOnly}
+                  onChange={(e) => setIsVegOnly(e.target.checked)}
+                  className="mr-2 h-5 w-5 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                />
+                <label className="text-gray-700">Veg Only</label>
               </div>
               <select
                 value={selectedCategory}
