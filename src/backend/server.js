@@ -142,11 +142,42 @@ app.get("/api/admin/analytics/:restaurantId", async (req, res) => {
 
 app.get("/api/restaurants", async (req, res) => {
     try {
-        const [restaurants] = await pool.query("select * from restaurants");
+        const [restaurants] = await pool.query("select * from restaurants");    
         res.json(restaurants);
     } catch (error) {
         console.error('Error fetching restaurants:', error);
         res.status(500).json({ error: 'Failed to fetch restaurants', details: error.message });
+    }
+});
+
+app.get("/api/restaurants/:id", async (req, res) => {
+    try {
+        const [restaurants] = await pool.query(
+            "SELECT * FROM Restaurants WHERE RestaurantID = ?",
+            [req.params.id]
+        );
+        
+        if (restaurants.length === 0) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+        
+        res.json(restaurants[0]);
+    } catch (error) {
+        console.error('Error fetching restaurant:', error);
+        res.status(500).json({ error: 'Failed to fetch restaurant' });
+    }
+});
+
+app.get("/api/restaurants/:id/menu", async (req, res) => {
+    try {
+        const [menuItems] = await pool.query(
+            "SELECT * FROM Menu_Item WHERE RestaurantID = ?",
+            [req.params.id]
+        );
+        res.json(menuItems);
+    } catch (error) {
+        console.error('Error fetching menu items:', error);
+        res.status(500).json({ error: 'Failed to fetch menu items' });
     }
 });
 

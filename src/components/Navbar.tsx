@@ -1,5 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, User, Search, LogOut } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { ShoppingBag, User, LogOut } from 'lucide-react';
 
 interface NavbarProps {
   user: {
@@ -11,6 +11,7 @@ interface NavbarProps {
 
 const Navbar = ({ user, setUser }: NavbarProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -28,23 +29,6 @@ const Navbar = ({ user, setUser }: NavbarProps) => {
               <span className="ml-2 text-xl font-bold text-gray-900">Hungry</span>
             </Link>
           </div>
-
-          {!user?.isAdmin && (
-            <div className="flex-1 flex items-center justify-center px-2 lg:ml-6 lg:justify-end">
-              <div className="max-w-lg w-full lg:max-w-xs">
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-                    placeholder="Search restaurants"
-                    type="search"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
 
           <div className="flex items-center">
             {user ? (
@@ -65,7 +49,7 @@ const Navbar = ({ user, setUser }: NavbarProps) => {
                 <User className="h-6 w-6" />
               </Link>
             )}
-            {!user?.isAdmin && (
+            {!user?.isAdmin && location.pathname !== '/cart' && (
               <Link
                 to="/cart"
                 className="ml-4 p-2 text-gray-400 hover:text-gray-500 relative"
