@@ -181,6 +181,41 @@ app.get("/api/restaurants/:id/menu", async (req, res) => {
     }
 });
 
+app.post("/api/orders", async (req, res) => {
+    const connection = await pool.getConnection();
+    
+    try {
+      await connection.beginTransaction();
+  
+      const { userId, restaurantId, items, deliveryType, totalAmount } = req.body;
+  
+      // Insert into Orders table
+      const [orderResult] = await connection.query(
+        "INSERT INTO Orders (UserID, RestaurantID, Status, Total_Amount, Delivery_Pickup) VALUES (?, ?, 'Pending', ?, ?)",
+        [userId, restaurantId, totalAmount, deliveryType]
+      );
+  
+      const orderId = orderResult.insertId;
+  
+      // Insert order items
+      for (const item of items) {
+        await connection.query(
+          "INSERT INTO Order_Item (OrderID, Menu_Item_ID, Quantity) VALUES (?, ?, ?)",
+          [orderId, item.menuItemId, item.quantity]
+        );
+      }
+  
+      await connection.commit();
+      res.json({ message: 'Order placed successfully', orderId });
+    } catch (error) {
+      await connection.rollback();
+      console.error('Error placing order:', error);
+      res.status(500).json({ error: 'Failed to place order' });
+    } finally {
+      connection.release();
+    }
+  });
+  
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

@@ -1,5 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingBag, User, LogOut } from 'lucide-react';
+import { useCart } from '../context/CartContext';
 
 interface NavbarProps {
   user: {
@@ -12,12 +13,15 @@ interface NavbarProps {
 const Navbar = ({ user, setUser }: NavbarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { state } = useCart();
 
   const handleLogout = () => {
     localStorage.removeItem('user');
     setUser(null);
     navigate('/login', { replace: true });
   };
+
+  const cartItemCount = state.items.reduce((total, item) => total + item.Quantity, 0);
 
   return (
     <nav className="bg-white shadow-md">
@@ -55,9 +59,11 @@ const Navbar = ({ user, setUser }: NavbarProps) => {
                 className="ml-4 p-2 text-gray-400 hover:text-gray-500 relative"
               >
                 <ShoppingBag className="h-6 w-6" />
-                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-orange-500 rounded-full">
-                  0
-                </span>
+                {cartItemCount > 0 && (
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-orange-500 rounded-full">
+                    {cartItemCount}
+                  </span>
+                )}
               </Link>
             )}
           </div>

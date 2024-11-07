@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import Register from './pages/Register.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
 import Footer from './components/Footer';
+import { CartProvider } from './context/CartContext';
 import { useEffect, useState } from 'react';
 
 interface User {
@@ -50,31 +51,33 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Toaster position="top-center" />
-        <Navbar user={user} setUser={setUser} />
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
-            <Route path="/restaurants" element={<PublicRoute><RestaurantList /></PublicRoute>} />
-            <Route path="/restaurant/:id" element={<PublicRoute><RestaurantDetail /></PublicRoute>} />
-            <Route path="/cart" element={<PublicRoute><Cart /></PublicRoute>} />
-            <Route path="/login" element={<Login setUser={setUser} />} />
-            <Route path="/register" element={<Register />} />
-            <Route 
-              path="/admin" 
-              element={
-                <ProtectedAdminRoute>
-                  <AdminDashboard />
-                </ProtectedAdminRoute>
-              } 
-            />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </BrowserRouter>
+    <CartProvider>
+      <BrowserRouter>
+        <div className="min-h-screen flex flex-col bg-gray-50">
+          <Toaster position="top-center" />
+          <Navbar user={user} setUser={setUser} />
+          <main className="flex-grow">
+            <Routes>
+              <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
+              <Route path="/restaurants" element={<PublicRoute><RestaurantList /></PublicRoute>} />
+              <Route path="/restaurant/:id" element={<PublicRoute><RestaurantDetail /></PublicRoute>} />
+              <Route path="/cart" element={<PublicRoute><Cart /></PublicRoute>} />
+              <Route path="/login" element={<Login setUser={setUser} />} />
+              <Route path="/register" element={<Register />} />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminDashboard />
+                  </ProtectedAdminRoute>
+                } 
+              />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </BrowserRouter>
+    </CartProvider>
   );
 }
 
