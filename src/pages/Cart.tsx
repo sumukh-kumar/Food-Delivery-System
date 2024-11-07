@@ -1,13 +1,15 @@
+// import { useState } from 'react';
 // import { Link, useNavigate } from 'react-router-dom';
 // import { ShoppingBag, Trash2, Plus, Minus } from 'lucide-react';
 // import { useCart } from '../context/CartContext';
 // import axios from 'axios';
 // import toast from 'react-hot-toast';
 
-// const Cart = () => {
+// export default function Cart() {
 //   const { state, dispatch } = useCart();
 //   const navigate = useNavigate();
 //   const user = JSON.parse(localStorage.getItem('user') || '{}');
+//   const [deliveryType, setDeliveryType] = useState<'Delivery' | 'Pickup'>('Delivery');
 
 //   const handleUpdateQuantity = (itemId: number, newQuantity: number) => {
 //     if (newQuantity === 0) {
@@ -26,8 +28,9 @@
 //   };
 
 //   const cartTotal = state.items.reduce((total, item) => total + (item.Price * item.Quantity), 0);
-//   const tax = 0.25  * cartTotal;
-//   const totalAmount = cartTotal + tax ;
+//   const tax = 0.25 * cartTotal;
+//   const deliveryFee = deliveryType === 'Delivery' ? 50 : 0; // Example delivery fee
+//   const totalAmount = cartTotal + tax + deliveryFee;
 
 //   const handleCheckout = async () => {
 //     if (!user.id) {
@@ -44,7 +47,7 @@
 //           menuItemId: item.Menu_Item_ID,
 //           quantity: item.Quantity
 //         })),
-//         deliveryType: 'Delivery',
+//         deliveryType,
 //         totalAmount
 //       };
 
@@ -133,10 +136,41 @@
 //                   <span className="text-gray-600">Taxes</span>
 //                   <span className="text-gray-900">Rs.{tax.toFixed(2)}</span>
 //                 </div>
+//                 <div className="flex justify-between">
+//                   <span className="text-gray-600">Delivery Fee</span>
+//                   <span className="text-gray-900">Rs.{deliveryFee.toFixed(2)}</span>
+//                 </div>
 //                 <div className="border-t pt-4">
 //                   <div className="flex justify-between">
 //                     <span className="text-lg font-semibold">Total</span>
 //                     <span className="text-lg font-semibold">Rs.{totalAmount.toFixed(2)}</span>
+//                   </div>
+//                 </div>
+//                 <div className="flex flex-col space-y-2">
+//                   <label className="text-gray-700 font-medium">Delivery Option</label>
+//                   <div className="flex space-x-4">
+//                     <label className="inline-flex items-center">
+//                       <input
+//                         type="radio"
+//                         className="form-radio text-orange-500"
+//                         name="deliveryType"
+//                         value="Delivery"
+//                         checked={deliveryType === 'Delivery'}
+//                         onChange={() => setDeliveryType('Delivery')}
+//                       />
+//                       <span className="ml-2">Delivery</span>
+//                     </label>
+//                     <label className="inline-flex items-center">
+//                       <input
+//                         type="radio"
+//                         className="form-radio text-orange-500"
+//                         name="deliveryType"
+//                         value="Pickup"
+//                         checked={deliveryType === 'Pickup'}
+//                         onChange={() => setDeliveryType('Pickup')}
+//                       />
+//                       <span className="ml-2">Pickup</span>
+//                     </label>
 //                   </div>
 //                 </div>
 //                 <button
@@ -152,10 +186,7 @@
 //       )}
 //     </div>
 //   );
-// };
-
-// export default Cart;
-
+// }
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -169,6 +200,8 @@ export default function Cart() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const [deliveryType, setDeliveryType] = useState<'Delivery' | 'Pickup'>('Delivery');
+  const [couponCode, setCouponCode] = useState('');
+  const [isCouponApplied, setIsCouponApplied] = useState(false);
 
   const handleUpdateQuantity = (itemId: number, newQuantity: number) => {
     if (newQuantity === 0) {
@@ -188,8 +221,18 @@ export default function Cart() {
 
   const cartTotal = state.items.reduce((total, item) => total + (item.Price * item.Quantity), 0);
   const tax = 0.25 * cartTotal;
-  const deliveryFee = deliveryType === 'Delivery' ? 50 : 0; // Example delivery fee
-  const totalAmount = cartTotal + tax + deliveryFee;
+  const deliveryFee = deliveryType === 'Delivery' ? 50 : 0;
+  const discount = isCouponApplied ? cartTotal * 0.1 : 0;
+  const totalAmount = cartTotal + tax + deliveryFee - discount;
+
+  const handleApplyCoupon = () => {
+    if (couponCode.toLowerCase() === 'discount10') {
+      setIsCouponApplied(true);
+      toast.success('Coupon applied successfully!');
+    } else {
+      toast.error('Invalid coupon code');
+    }
+  };
 
   const handleCheckout = async () => {
     if (!user.id) {
@@ -207,7 +250,8 @@ export default function Cart() {
           quantity: item.Quantity
         })),
         deliveryType,
-        totalAmount
+        totalAmount,
+        discount: isCouponApplied ? discount : 0
       };
 
       const response = await axios.post('http://localhost:8080/api/orders', orderData);
@@ -299,6 +343,12 @@ export default function Cart() {
                   <span className="text-gray-600">Delivery Fee</span>
                   <span className="text-gray-900">Rs.{deliveryFee.toFixed(2)}</span>
                 </div>
+                {isCouponApplied && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Discount (10%)</span>
+                    <span>-Rs.{discount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="border-t pt-4">
                   <div className="flex justify-between">
                     <span className="text-lg font-semibold">Total</span>
@@ -332,9 +382,30 @@ export default function Cart() {
                     </label>
                   </div>
                 </div>
+                <div className="flex flex-col space-y-2">
+                  <label htmlFor="coupon" className="text-gray-700 font-medium">
+                    Apply Coupon
+                  </label>
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      id="coupon"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      placeholder="Enter coupon code"
+                      className="flex-grow px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                    <button
+                      onClick={handleApplyCoupon}
+                      className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
                 <button
                   onClick={handleCheckout}
-                  className="w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600"
+                  className="w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 >
                   Proceed to Checkout
                 </button>
