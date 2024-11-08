@@ -93,6 +93,33 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleToggleAvailability = async (menuItemId: number, currentStatus: boolean) => {
+    try {
+      const menuItem = menuItems.find(item => item.Menu_Item_ID === menuItemId);
+      if (!menuItem) {
+        throw new Error('Menu item not found');
+      }
+
+      await axios.put(`http://localhost:8080/api/admin/menu-item/${menuItemId}`, {
+        name: menuItem.Name,
+        description: menuItem.Description,
+        price: menuItem.Price,
+        category: menuItem.Category,
+        veg_nonveg: menuItem.Veg_NonVeg,
+        image_url: menuItem.Image_URL,
+        in_stock: !currentStatus
+      });
+      
+      toast.success(`Item marked as ${!currentStatus ? 'available' : 'unavailable'}`);
+      if (restaurant?.id) {
+        fetchMenuItems(restaurant.id);
+      }
+    } catch (error) {
+      console.error('Error updating item availability:', error);
+      toast.error('Failed to update availability');
+    }
+  };
+
   const handleUpdateRestaurant = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -310,7 +337,7 @@ export default function AdminDashboard() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Revenue</p>
               <p className="text-2xl font-semibold text-gray-900">
-              Rs.{typeof analytics.totalRevenue === 'number' ? analytics.totalRevenue.toFixed(2) : '0.00'}
+                Rs.{analytics.totalRevenue}
               </p>
             </div>
           </div>
@@ -322,7 +349,7 @@ export default function AdminDashboard() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Average Order Value</p>
               <p className="text-2xl font-semibold text-gray-900">
-              Rs.{typeof averageOrderValue === 'number' ? averageOrderValue.toFixed(2) : '0.00'}
+                Rs.{averageOrderValue}
               </p>
             </div>
           </div>
@@ -444,6 +471,9 @@ export default function AdminDashboard() {
                   Type
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Availability
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -469,7 +499,7 @@ export default function AdminDashboard() {
                     {item.Category}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  Rs.{typeof item.Price === 'number' ? item.Price.toFixed(2) : '0.00'}
+                    Rs.{item.Price}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -477,6 +507,18 @@ export default function AdminDashboard() {
                     }`}>
                       {item.Veg_NonVeg}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button
+                      onClick={() => handleToggleAvailability(item.Menu_Item_ID, item.In_Stock)}
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        item.In_Stock
+                          ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                          : 'bg-red-100 text-red-800 hover:bg-red-200'
+                      }`}
+                    >
+                      {item.In_Stock ? 'Available' : 'Unavailable'}
+                    </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
@@ -508,95 +550,95 @@ export default function AdminDashboard() {
             </tbody>
           </table>
         </div>
-      </div>
 
-      {/* Edit Menu Item Modal */}
-      {editingMenuItem && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full p-6">
-            <form onSubmit={handleUpdateMenuItem} className="space-y-4">
-              <h3 className="text-lg font-medium">Edit Menu Item</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Name</label>
-                  <input
-                    type="text"
-                    value={menuItemForm.name}
-                    onChange={(e) => setMenuItemForm({ ...menuItemForm, name: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                    required
-                  />
+        {/* Edit Menu Item Modal */}
+        {editingMenuItem && (
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+              <form onSubmit={handleUpdateMenuItem} className="space-y-4">
+                <h3 className="text-lg font-medium">Edit Menu Item</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Name</label>
+                    <input
+                      type="text"
+                      value={menuItemForm.name}
+                      onChange={(e) => setMenuItemForm({ ...menuItemForm, name: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Price</label>
+                    <input
+                      type="number"
+                      value={menuItemForm.price}
+                      onChange={(e) => setMenuItemForm({ ...menuItemForm, price: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Category</label>
+                    <input
+                      type="text"
+                      value={menuItemForm.category}
+                      onChange={(e) => setMenuItemForm({ ...menuItemForm, category: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Type</label>
+                    <select
+                      value={menuItemForm.veg_nonveg}
+                      onChange={(e) => setMenuItemForm({ ...menuItemForm, veg_nonveg: e.target.value as 'Veg' | 'Non-Veg' })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    >
+                      <option value="Veg">Veg</option>
+                      <option value="Non-Veg">Non-Veg</option>
+                    </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea
+                      value={menuItemForm.description}
+                      onChange={(e) => setMenuItemForm({ ...menuItemForm, description: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                      rows={3}
+                      required
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700">Image URL</label>
+                    <input
+                      type="url"
+                      value={menuItemForm.image_url}
+                      onChange={(e) => setMenuItemForm({ ...menuItemForm, image_url: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Price</label>
-                  <input
-                    type="number"
-                    value={menuItemForm.price}
-                    onChange={(e) => setMenuItemForm({ ...menuItemForm, price: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Category</label>
-                  <input
-                    type="text"
-                    value={menuItemForm.category}
-                    onChange={(e) => setMenuItemForm({ ...menuItemForm, category: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Type</label>
-                  <select
-                    value={menuItemForm.veg_nonveg}
-                    onChange={(e) => setMenuItemForm({ ...menuItemForm, veg_nonveg: e.target.value as 'Veg' | 'Non-Veg' })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                <div className="flex justify-end space-x-4">
+                  <button
+                    type="button"
+                    onClick={() => setEditingMenuItem(null)}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
-                    <option value="Veg">Veg</option>
-                    <option value="Non-Veg">Non-Veg</option>
-                  </select>
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600"
+                  >
+                    Save Changes
+                  </button>
                 </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Description</label>
-                  <textarea
-                    value={menuItemForm.description}
-                    onChange={(e) => setMenuItemForm({ ...menuItemForm, description: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                    rows={3}
-                    required
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Image URL</label>
-                  <input
-                    type="url"
-                    value={menuItemForm.image_url}
-                    onChange={(e) => setMenuItemForm({ ...menuItemForm, image_url: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end space-x-4">
-                <button
-                  type="button"
-                  onClick={() => setEditingMenuItem(null)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

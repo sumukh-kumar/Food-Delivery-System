@@ -279,6 +279,48 @@ app.get("/api/admin/analytics/:restaurantId", async (req, res) => {
     }
 });
 
+app.get("/api/admin/orders/:restaurantId", async (req, res) => {
+    try {
+        const [orders] = await pool.query(`
+            SELECT o.*, u.User_Name, u.Phone as User_Phone, u.Address as User_Address
+            FROM Orders o
+            JOIN User u ON o.UserID = u.UserID
+            WHERE o.RestaurantID = ?
+            ORDER BY o.Date DESC
+        `, [req.params.restaurantId]);
+
+        // Get order items for each order
+        for (let order of orders) {
+            const [items] = await pool.query(`
+                SELECT oi.*, mi.Name, mi.Price
+                FROM Order_Item oi
+                JOIN Menu_Item mi ON oi.Menu_Item_ID = mi.Menu_Item_ID
+                WHERE oi.OrderID = ?
+            `, [order.OrderID]);
+            order.items = items;
+        }
+
+        res.json(orders);
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+});
+
+app.put("/api/admin/orders/:orderId/status", async (req, res) => {
+    try {
+        const { status } = req.body;
+        await pool.query(
+            "UPDATE Orders SET Status = ? WHERE OrderID = ?",
+            [status, req.params.orderId]
+        );
+        res.json({ message: 'Order status updated successfully' });
+    } catch (error) {
+        console.error('Error updating order status:', error);
+        res.status(500).json({ error: 'Failed to update order status' });
+    }
+});
+
 app.put("/api/admin/restaurant/:id", async (req, res) => {
     try {
         const { name, location, cuisine, image_url } = req.body;
@@ -328,10 +370,14 @@ app.put("/api/admin/menu-item/:id", async (req, res) => {
         const { name, description, price, category, veg_nonveg, image_url, in_stock } = req.body;
         const menuItemId = req.params.id;
 
-        await pool.query(
+        const [result] = await pool.query(
             "UPDATE Menu_Item SET Name = ?, Description = ?, Price = ?, Category = ?, Veg_NonVeg = ?, Image_URL = ?, In_Stock = ? WHERE Menu_Item_ID = ?",
             [name, description, price, category, veg_nonveg, image_url, in_stock, menuItemId]
         );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Menu item not found' });
+        }
 
         res.json({ message: 'Menu item updated successfully' });
     } catch (error) {

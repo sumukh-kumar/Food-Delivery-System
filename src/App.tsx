@@ -10,6 +10,7 @@ import PaymentSuccess from './pages/PaymentSuccess.tsx';
 import Login from './pages/Login';
 import Register from './pages/Register.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
+import AdminOrders from './pages/AdminOrders.tsx';
 import Footer from './components/Footer';
 import { CartProvider } from './context/CartContext';
 import { useEffect, useState } from 'react';
@@ -73,6 +74,14 @@ function App() {
                 element={
                   <ProtectedAdminRoute>
                     <AdminDashboard />
+                  </ProtectedAdminRoute>
+                } 
+              />
+              <Route 
+                path="/admin/orders" 
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminOrders />
                   </ProtectedAdminRoute>
                 } 
               />

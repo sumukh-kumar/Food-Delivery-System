@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingBag, User, LogOut } from 'lucide-react';
+import { ShoppingBag, User, LogOut, ClipboardList } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 interface NavbarProps {
@@ -37,6 +37,27 @@ const Navbar = ({ user, setUser }: NavbarProps) => {
           <div className="flex items-center">
             {user ? (
               <div className="flex items-center space-x-4">
+                {user.isAdmin && (
+                  <>
+                    <Link
+                      to="/admin"
+                      className={`text-gray-700 hover:text-gray-900 ${
+                        location.pathname === '/admin' ? 'text-orange-500' : ''
+                      }`}
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      to="/admin/orders"
+                      className={`flex items-center text-gray-700 hover:text-gray-900 ${
+                        location.pathname === '/admin/orders' ? 'text-orange-500' : ''
+                      }`}
+                    >
+                      <ClipboardList className="h-5 w-5 mr-1" />
+                      Orders
+                    </Link>
+                  </>
+                )}
                 <span className="text-gray-700">{user.name}</span>
                 <button
                   onClick={handleLogout}
