@@ -35,7 +35,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
             <div className="flex items-center">
               <Star className="h-5 w-5 text-yellow-400 fill-current" />
               <span className="ml-1 text-gray-700">
-                {typeof restaurant.Rating === 'number' ? restaurant.Rating.toFixed(1) : 'N/A'}
+                {typeof restaurant.Rating === 'number' ? restaurant.Rating.toFixed(1) : '5.0'}
               </span>
             </div>
           </div>

@@ -46,18 +46,6 @@ END //
 DELIMITER ;
 
 
--- Update Restaurant Rating
-DELIMITER //
-CREATE PROCEDURE UpdateRestaurantRating(
-    IN p_RestaurantID INT,
-    IN p_NewRating DECIMAL(3, 2)
-)
-BEGIN
-    UPDATE Restaurants
-    SET Rating = p_NewRating
-    WHERE RestaurantID = p_RestaurantID;
-END //
-DELIMITER ;
 
 -- Add Menu Item
 DELIMITER //
@@ -210,17 +198,16 @@ DELIMITER ;
 
 -- Get Orders by User
 DELIMITER //
-CREATE FUNCTION GetOrdersByUser(
+CREATE PROCEDURE GetOrdersByUser(
     IN p_UserID INT
-) RETURNS TABLE
+)
 BEGIN
-    RETURN (
-        SELECT o.OrderID, o.RestaurantID, o.Status, o.Date, o.Total_Amount, o.Delivery_Pickup
-        FROM Orders o
-        WHERE o.UserID = p_UserID
-    );
+    SELECT o.OrderID, o.RestaurantID, o.Status, o.Date, o.Total_Amount, o.Delivery_Pickup
+    FROM Orders o
+    WHERE o.UserID = p_UserID;
 END //
 DELIMITER ;
+
 
 -- Get Popular Menu Items
 DELIMITER //

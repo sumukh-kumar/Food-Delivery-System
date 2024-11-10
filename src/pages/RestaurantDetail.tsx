@@ -97,7 +97,7 @@ const RestaurantDetail = () => {
             <div className="flex items-center">
               <Star className="h-5 w-5 text-yellow-400 fill-current" />
               <span className="ml-1 text-gray-700">
-                {rating ? rating.toFixed(1) : 'New'}
+                {rating ? rating.toFixed(1) : '5.0'}
               </span>
             </div>
             <div className="flex items-center">
