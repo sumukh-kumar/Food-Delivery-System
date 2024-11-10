@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import Register from './pages/Register.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
 import AdminOrders from './pages/AdminOrders.tsx';
+import About from './pages/About.tsx';
 import Footer from './components/Footer';
 import { CartProvider } from './context/CartContext';
 import { useEffect, useState } from 'react';
@@ -67,6 +68,7 @@ function App() {
               <Route path="/cart" element={<PublicRoute><Cart /></PublicRoute>} />
               <Route path="/payment" element={<PublicRoute><Payment /></PublicRoute>} />
               <Route path="/payment-success" element={<PublicRoute><PaymentSuccess /></PublicRoute>} />
+              <Route path="/about" element={<About />} />
               <Route path="/login" element={<Login setUser={setUser} />} />
               <Route path="/register" element={<Register />} />
               <Route 
