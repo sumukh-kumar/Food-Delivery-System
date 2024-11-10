@@ -211,11 +211,7 @@ app.post("/api/payments", async (req, res) => {
             [userId, orderId, amount, method]
         );
 
-        // Update order status
-        await connection.query(
-            `UPDATE Orders SET Status = 'Processing' WHERE OrderID = ?`,
-            [orderId]
-        );
+        //Order status gets automatically uipdated by the trigger done by func.sql
 
         await connection.commit();
         res.json({ 
@@ -294,9 +290,13 @@ app.get("/api/admin/orders/:restaurantId", async (req, res) => {
             const [items] = await pool.query(`
                 SELECT oi.*, mi.Name, mi.Price
                 FROM Order_Item oi
-                JOIN Menu_Item mi ON oi.Menu_Item_ID = mi.Menu_Item_ID
+                JOIN (
+                    SELECT Menu_Item_ID, Name, Price
+                    FROM Menu_Item
+                    WHERE RestaurantID = ?
+                ) AS mi ON oi.Menu_Item_ID = mi.Menu_Item_ID
                 WHERE oi.OrderID = ?
-            `, [order.OrderID]);
+            `, [req.params.restaurantId, order.OrderID]);
             order.items = items;
         }
 
@@ -306,6 +306,7 @@ app.get("/api/admin/orders/:restaurantId", async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch orders' });
     }
 });
+
 
 app.put("/api/admin/orders/:orderId/status", async (req, res) => {
     try {

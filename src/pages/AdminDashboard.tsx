@@ -312,7 +312,7 @@ export default function AdminDashboard() {
                 <p className="text-gray-600">Cuisine: {restaurant.cuisine}</p>
               </div>
               <div>
-                <p className="text-gray-600">Rating: {restaurant.rating} ⭐</p>
+                <p className="text-gray-600">Rating: {restaurant.rating} ⭐⭐⭐⭐⭐  5</p>
               </div>
             </div>
           </div>
@@ -337,7 +337,7 @@ export default function AdminDashboard() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Revenue</p>
               <p className="text-2xl font-semibold text-gray-900">
-                Rs.{analytics.totalRevenue}
+                Rs.{analytics.totalRevenue.toFixed(2)}
               </p>
             </div>
           </div>
@@ -349,7 +349,7 @@ export default function AdminDashboard() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Average Order Value</p>
               <p className="text-2xl font-semibold text-gray-900">
-                Rs.{averageOrderValue}
+                Rs.{averageOrderValue.toFixed(2)}
               </p>
             </div>
           </div>

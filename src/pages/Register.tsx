@@ -79,9 +79,6 @@ const Register = () => {
             <div>
               <label htmlFor="name" className="sr-only">Full Name</label>
               <div className="relative">
-                {/* <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
-                </div> */}
                 <input
                   id="name"
                   name="name"
@@ -98,9 +95,6 @@ const Register = () => {
             <div>
               <label htmlFor="email" className="sr-only">Email address</label>
               <div className="relative">
-                {/* <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                </div> */}
                 <input
                   id="email"
                   name="email"
@@ -117,9 +111,6 @@ const Register = () => {
             <div>
               <label htmlFor="phone" className="sr-only">Phone Number</label>
               <div className="relative">
-                {/* <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Phone className="h-5 w-5 text-gray-400" />
-                </div> */}
                 <input
                   id="phone"
                   name="phone"
@@ -137,9 +128,6 @@ const Register = () => {
               <div>
                 <label htmlFor="restaurantName" className="sr-only">Restaurant Name</label>
                 <div className="relative">
-                {/* <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Cookie className="h-5 w-5 text-gray-400" />
-                </div> */}
                 <input
                   id="restaurantName"
                   name="restaurantName"
@@ -157,9 +145,6 @@ const Register = () => {
             <div>
               <label htmlFor="address" className="sr-only">Address</label>
               <div className="relative">
-                {/* <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <MapPin className="h-5 w-5 text-gray-400" />
-                </div> */}
                 <input
                   id="address"
                   name="address"
@@ -176,9 +161,6 @@ const Register = () => {
             <div>
               <label htmlFor="password" className="sr-only">Password</label>
               <div className="relative">
-                {/* <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div> */}
                 <input
                   id="password"
                   name="password"
@@ -195,9 +177,6 @@ const Register = () => {
             <div>
               <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
               <div className="relative">
-                {/* <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div> */}
                 <input
                   id="confirmPassword"
                   name="confirmPassword"

@@ -242,3 +242,18 @@ BEGIN
     SELECT IFNULL(v_TotalRevenue, 0) AS TotalRevenue;
 END //
 DELIMITER ;
+
+
+-- IMPORTANT DONT DELETE
+DELIMITER //
+
+CREATE TRIGGER update_order_status_after_payment
+AFTER INSERT ON Payment
+FOR EACH ROW
+BEGIN
+    UPDATE Orders
+    SET Status = 'Processing'
+    WHERE OrderID = NEW.OrderID AND Status = 'Pending';
+END //
+
+DELIMITER ;

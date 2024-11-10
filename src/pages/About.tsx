@@ -4,7 +4,6 @@ import siri from './Siri.jpeg'
 export default function About() {
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4 space-y-6">
-            {/* Card 1 */}
             <div className="max-w-3xl w-full bg-white rounded-lg shadow-lg overflow-hidden">
                 <div className="flex flex-col md:flex-row">
                     <div className="md:flex-shrink-0">
@@ -26,7 +25,6 @@ export default function About() {
                 </div>
             </div>
             
-            {/* Card 2 */}
             <div className="max-w-3xl w-full bg-white rounded-lg shadow-lg overflow-hidden">
                 <div className="flex flex-col md:flex-row">
                     <div className="md:flex-shrink-0">
