@@ -20,8 +20,7 @@ CREATE TABLE Restaurants (
     Restaurant_Name VARCHAR(100) NOT NULL UNIQUE,
     Location VARCHAR(200),
     Cuisine VARCHAR(100),
-    Image_URL VARCHAR(255),
-    Rating DECIMAL(3, 2) DEFAULT 0.0
+    Image_URL VARCHAR(255)
 );
 
 -- Table: Admin
