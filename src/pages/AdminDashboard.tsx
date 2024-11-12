@@ -312,7 +312,7 @@ export default function AdminDashboard() {
                 <p className="text-gray-600">Cuisine: {restaurant.cuisine}</p>
               </div>
               <div>
-                <p className="text-gray-600">Rating: {restaurant.rating} ⭐⭐⭐⭐⭐  5</p>
+                <p className="text-gray-600">Rating: {restaurant.rating} ⭐⭐⭐⭐⭐</p>
               </div>
             </div>
           </div>
