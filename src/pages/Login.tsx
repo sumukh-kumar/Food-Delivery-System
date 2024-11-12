@@ -105,27 +105,6 @@ const Login = ({ setUser }: LoginProps) => {
               </div>
             </div>
           </div>
-
-          {/* <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
-            </div> */}
-
-            {/* <div className="text-sm">
-              <a href="#" className="font-medium text-orange-500 hover:text-orange-400">
-                Forgot your password?
-              </a>
-            </div>
-          </div> */}
-
           <div>
             <button
               type="submit"

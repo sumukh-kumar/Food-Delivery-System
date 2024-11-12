@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { registeruser, loginUser, addRestaurant, registerAdmin, pool } from './database.js';
+import { registeruser, loginUser, addRestaurant, registerAdmin, pool, getOrderItemsByOrderId, getOrdersByRestaurant } from './database.js';
 
 dotenv.config();
 
@@ -14,23 +14,17 @@ app.use(express.json());
 app.post("/api/login", async (req, res) => {
     try {
         const { email, password } = req.body;
-
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required' });
         }
-
         const user = await loginUser(email, password);
-        
         if (!user) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
-
-        // Check if user is admin
         const [adminRows] = await pool.query(
             "SELECT a.*, r.* FROM Admin a JOIN Restaurants r ON a.RestaurantID = r.RestaurantID WHERE a.UserID = ?",
             [user.UserID]
         );
-
         const isAdmin = adminRows.length > 0;
         const adminData = isAdmin ? adminRows[0] : null;
 
@@ -63,16 +57,13 @@ app.post("/api/register", async (req, res) => {
         if (!name || !email || !phone || !password || !confirmPassword) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
-
         if (password !== confirmPassword) {
             return res.status(400).json({ message: 'Passwords do not match' });
         }
-
         const [rows] = await pool.query("SELECT * FROM user WHERE email = ?", [email]);
         if (rows.length > 0) {
             return res.status(400).json({ message: 'User already exists' });
         }
-
         const user = {
             name,
             email,
@@ -80,7 +71,6 @@ app.post("/api/register", async (req, res) => {
             address,
             password
         };
-
         const newUserID = await registeruser(user);
 
         if (isAdmin) {
@@ -115,7 +105,6 @@ app.get("/api/restaurants/:id", async (req, res) => {
         if (restaurants.length === 0) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
-        
         res.json(restaurants[0]);
     } catch (error) {
         console.error('Error fetching restaurant:', error);
@@ -141,15 +130,12 @@ app.post("/api/orders", async (req, res) => {
     try {
         connection = await pool.getConnection();
         await connection.beginTransaction();
-
         const { userId, restaurantId, items, deliveryType, totalAmount } = req.body;
 
-        // Validate input
         if (!userId || !restaurantId || !items || !items.length || !totalAmount) {
             throw new Error('Missing required fields');
         }
 
-        // Insert into Orders table
         const [orderResult] = await connection.query(
             `INSERT INTO Orders (UserID, RestaurantID, Status, Total_Amount, Delivery_Pickup) 
              VALUES (?, ?, 'Pending', ?, ?)`,
@@ -158,7 +144,6 @@ app.post("/api/orders", async (req, res) => {
 
         const orderId = orderResult.insertId;
 
-        // Insert order items
         for (const item of items) {
             await connection.query(
                 `INSERT INTO Order_Item (OrderID, Menu_Item_ID, Quantity) 
@@ -199,19 +184,17 @@ app.post("/api/payments", async (req, res) => {
 
         const { userId, orderId, amount, method } = req.body;
 
-        // Validate input
         if (!userId || !orderId || !amount || !method) {
             throw new Error('Missing required fields');
         }
 
-        // Insert into Payment table
         await connection.query(
             `INSERT INTO Payment (UserID, OrderID, Amount, Method, Payment_Status) 
              VALUES (?, ?, ?, ?, 'Completed')`,
             [userId, orderId, amount, method]
         );
 
-        //Order status gets automatically uipdated by the trigger done by func.sql
+        // TRIGGER DOES HERE
 
         await connection.commit();
         res.json({ 
@@ -240,34 +223,19 @@ app.get("/api/admin/analytics/:restaurantId", async (req, res) => {
     try {
         const { restaurantId } = req.params;
 
-        // Get total orders
         const [orderCount] = await pool.query(
             "SELECT COUNT(*) as total FROM Orders WHERE RestaurantID = ?",
             [restaurantId]
         );
 
-        // Get total revenue
         const [revenue] = await pool.query(
             "SELECT COALESCE(SUM(Total_Amount), 0) as total FROM Orders WHERE RestaurantID = ?",
             [restaurantId]
         );
-
-        // Get popular items
-        const [popularItems] = await pool.query(`
-            SELECT mi.Name, COUNT(*) as orderCount
-            FROM Order_Item oi
-            JOIN Menu_Item mi ON oi.Menu_Item_ID = mi.Menu_Item_ID
-            JOIN Orders o ON oi.OrderID = o.OrderID
-            WHERE o.RestaurantID = ?
-            GROUP BY mi.Menu_Item_ID
-            ORDER BY orderCount DESC
-            LIMIT 5
-        `, [restaurantId]);
-
+       
         res.json({
             totalOrders: Number(orderCount[0].total),
-            totalRevenue: Number(revenue[0].total),
-            popularItems
+            totalRevenue: Number(revenue[0].total)
         });
     } catch (error) {
         console.error('Error fetching analytics:', error);
@@ -277,27 +245,12 @@ app.get("/api/admin/analytics/:restaurantId", async (req, res) => {
 
 app.get("/api/admin/orders/:restaurantId", async (req, res) => {
     try {
-        const [orders] = await pool.query(`
-            SELECT o.*, u.User_Name, u.Phone as User_Phone, u.Address as User_Address
-            FROM Orders o
-            JOIN User u ON o.UserID = u.UserID
-            WHERE o.RestaurantID = ?
-            ORDER BY o.Date DESC
-        `, [req.params.restaurantId]);
+        const { restaurantId } = req.params;
 
-        // Get order items for each order
+        const orders = await getOrdersByRestaurant(restaurantId);
+
         for (let order of orders) {
-            const [items] = await pool.query(`
-                SELECT oi.*, mi.Name, mi.Price
-                FROM Order_Item oi
-                JOIN (
-                    SELECT Menu_Item_ID, Name, Price
-                    FROM Menu_Item
-                    WHERE RestaurantID = ?
-                ) AS mi ON oi.Menu_Item_ID = mi.Menu_Item_ID
-                WHERE oi.OrderID = ?
-            `, [req.params.restaurantId, order.OrderID]);
-            order.items = items;
+            order.items = await getOrderItemsByOrderId(restaurantId, order.OrderID);
         }
 
         res.json(orders);

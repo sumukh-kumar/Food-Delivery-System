@@ -2,16 +2,15 @@ DROP DATABASE IF EXISTS FoodDeliverySystem;
 CREATE DATABASE FoodDeliverySystem;
 USE FoodDeliverySystem;
 
--- TABLE CREATION --
 
--- Table: User (Consumers)
+-- Table: User 
 CREATE TABLE User (
     UserID INT PRIMARY KEY AUTO_INCREMENT,
     User_Name VARCHAR(100) NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
     Phone VARCHAR(15),
-    Address VARCHAR(250), -- User address used for delivery
-    Password VARCHAR(100) NOT NULL -- For user authentication
+    Address VARCHAR(250), 
+    Password VARCHAR(100) NOT NULL
 );
 
 -- Table: Restaurants
@@ -26,8 +25,8 @@ CREATE TABLE Restaurants (
 -- Table: Admin
 CREATE TABLE Admin (
     AdminID INT PRIMARY KEY AUTO_INCREMENT,
-    UserID INT UNIQUE, -- Linking Admin to User
-    RestaurantID INT UNIQUE, -- Restaurant managed by Admin
+    UserID INT UNIQUE, 
+    RestaurantID INT UNIQUE, 
     FOREIGN KEY (UserID) REFERENCES User(UserID) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (RestaurantID) REFERENCES Restaurants(RestaurantID) ON UPDATE CASCADE ON DELETE CASCADE
 );
@@ -69,14 +68,6 @@ CREATE TABLE Order_Item (
     FOREIGN KEY (Menu_Item_ID) REFERENCES Menu_Item(Menu_Item_ID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- Table: Delivery
-CREATE TABLE Delivery (
-    Delivery_ID INT PRIMARY KEY AUTO_INCREMENT,
-    OrderID INT,
-    Delivery_Status ENUM('Pending', 'Out for Delivery', 'Delivered', 'Cancelled') DEFAULT 'Pending',
-    Estimated_Time TIME,
-    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON UPDATE CASCADE ON DELETE SET NULL
-);
 
 -- Table: Payment
 CREATE TABLE Payment (
@@ -84,7 +75,7 @@ CREATE TABLE Payment (
     UserID INT,
     OrderID INT,
     Amount DECIMAL(10, 2) NOT NULL,
-    Method ENUM('Credit Card', 'Debit Card', 'UPI', 'Net Banking', 'Wallet', 'COD'), -- COD: Cash on Delivery
+    Method ENUM('Credit Card', 'Wallet'), 
     Payment_Status ENUM('Pending', 'Completed', 'Failed') DEFAULT 'Pending',
     Payment_Date DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES User(UserID) ON UPDATE CASCADE ON DELETE SET NULL,

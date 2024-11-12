@@ -73,9 +73,7 @@ const Register = () => {
                 Register as Admin
               </label>
             </div>
-
             
-
             <div>
               <label htmlFor="name" className="sr-only">Full Name</label>
               <div className="relative">

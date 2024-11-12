@@ -31,7 +31,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         item => item.Menu_Item_ID === action.payload.Menu_Item_ID
       );
 
-      // If cart is empty or same restaurant, proceed
+
       if (!state.restaurantId || state.restaurantId === action.payload.RestaurantID) {
         if (existingItem) {
           return {

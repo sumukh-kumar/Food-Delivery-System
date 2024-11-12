@@ -47,4 +47,41 @@ async function registerAdmin(adminData) {
     return result; 
 }
 
-export { registeruser, loginUser, addRestaurant, registerAdmin, pool };
+
+async function getOrdersByRestaurant(restaurantId) {
+    try {
+        const [orders] = await pool.query(`
+            SELECT o.*, u.User_Name, u.Phone as User_Phone, u.Address as User_Address
+            FROM Orders o
+            JOIN User u ON o.UserID = u.UserID
+            WHERE o.RestaurantID = ?
+            ORDER BY o.Date DESC
+        `, [restaurantId]);
+        return orders;
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        throw error;
+    }
+}
+
+
+async function getOrderItemsByOrderId(restaurantId, orderId) {
+    try {
+        const [items] = await pool.query(`
+            SELECT oi.*, mi.Name, mi.Price
+            FROM Order_Item oi
+            JOIN (
+                SELECT Menu_Item_ID, Name, Price
+                FROM Menu_Item
+                WHERE RestaurantID = ?
+            ) AS mi ON oi.Menu_Item_ID = mi.Menu_Item_ID
+            WHERE oi.OrderID = ?
+        `, [restaurantId, orderId]);
+        return items;
+    } catch (error) {
+        console.error('Error fetching order items:', error);
+        throw error;
+    }
+}
+
+export { registeruser, loginUser, addRestaurant, registerAdmin, pool, getOrderItemsByOrderId, getOrdersByRestaurant };

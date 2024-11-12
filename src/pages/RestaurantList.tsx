@@ -53,7 +53,7 @@ const RestaurantList: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Restaurants</h1>
-          <p className="mt-2 text-gray-600">Find your favorite restaurants and dishes</p>
+          <p className="mt-2 text-gray-600">Find your favorite restaurants!</p>
         </div>
       </div>
 

@@ -8,7 +8,7 @@ const Footer = () => {
           <div className="md:text-left text-center">
             <h3 className="text-lg font-semibold mb-4">Hungry</h3>
             <p className="text-gray-400">
-              Delivering happiness to your doorstep, one meal at a time.
+              Edible Food
             </p>
           </div>
           
