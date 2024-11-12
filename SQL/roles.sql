@@ -34,13 +34,17 @@ GRANT EXECUTE ON PROCEDURE FoodDeliverySystem.TrackDelivery TO 'AdminRole';
 GRANT EXECUTE ON PROCEDURE FoodDeliverySystem.GetRevenueByRestaurant TO 'AdminRole';
 GRANT EXECUTE ON PROCEDURE FoodDeliverySystem.GetPopularMenuItems TO 'AdminRole';
 
+-- Create a regular user account
+CREATE USER 'username'@'hostname' IDENTIFIED BY 'password';
+
+-- Create an admin user account
+CREATE USER 'adminusername'@'hostname' IDENTIFIED BY 'password';
+
+
 -- Assign UserRole to a regular user
 GRANT 'UserRole' TO 'username'@'hostname';
 
 -- Assign AdminRole to an admin user
 GRANT 'AdminRole' TO 'adminusername'@'hostname';
 
-
-SET DEFAULT ROLE 'UserRole' FOR 'username'@'hostname';
-SET DEFAULT ROLE 'AdminRole' FOR 'adminusername'@'hostname';
 
