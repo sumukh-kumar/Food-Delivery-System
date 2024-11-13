@@ -1,6 +1,6 @@
 USE FoodDeliverySystem;
 
--- IMPORTANT DONT DELETE
+-- Trigger!!
 DELIMITER //
 CREATE TRIGGER update_order_status_after_payment
 AFTER INSERT ON Payment
@@ -10,6 +10,20 @@ BEGIN
     SET Status = 'Processing'
     WHERE OrderID = NEW.OrderID AND Status = 'Pending';
 END //
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER delete_restaurant_if_no_admin
+AFTER DELETE ON User
+FOR EACH ROW
+BEGIN
+    -- Delete restaurants that have no corresponding Admin
+    DELETE FROM Restaurants
+    WHERE RestaurantID NOT IN (
+        SELECT DISTINCT RestaurantID
+        FROM Admin
+    );
+END $$
 DELIMITER ;
 
 

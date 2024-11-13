@@ -194,7 +194,7 @@ app.post("/api/payments", async (req, res) => {
             [userId, orderId, amount, method]
         );
 
-        // TRIGGER DOES HERE
+        // TRIGGER HERE
 
         await connection.commit();
         res.json({ 
